@@ -1,0 +1,115 @@
+/* body
+{
+    background: #222121;
+    background-image: url('../Login/Forms/background.jpg');
+    background-size: cover;
+} */
+
+.login-form {
+
+    background: #d5d7de;
+    max-width: 370px;
+    margin: auto;
+    margin-top: 100px;
+
+
+}
+
+
+.login-form .form-control {
+
+    position: relative;
+
+    font-size: 16px;
+
+    height: auto;
+
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+
+    -moz-box-sizing: border-box;
+
+    box-sizing: border-box;
+
+}
+
+
+
+.login-form .login-img{
+
+    font-size: 40px;
+
+    font-weight: 300;
+
+}
+
+.login-form .input-group{
+
+    padding-bottom: 15px;
+
+}
+
+.login-form .input-group-addon{
+
+    padding: 12px 12px;
+
+    font-size: 16px;
+    
+
+    color: #222121;
+
+    font-weight: normal;
+
+    line-height: 1;
+
+    text-align: center;
+
+    background-color: #ffffff;
+
+    border: none;
+
+    border-radius: 0;
+
+}
+
+.login-form input {
+
+    border: none;
+
+    box-shadow: none;
+
+    font-size: 16px;
+
+    border-radius: 0;
+
+}
+
+.login-form .btn{
+
+    border-radius: 0;
+
+}
+
+
+
+
+.login-form p {
+
+    text-align: center;
+
+    color: #b6b6b6;
+
+    font-size: 16px;
+
+    font-weight: 300;
+
+}
+
+
+
+.login-wrap {
+
+    padding: 20px;
+
+}
