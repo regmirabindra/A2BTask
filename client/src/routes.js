@@ -4,7 +4,7 @@ import {Route,Switch} from 'react-router-dom'
 //COmponents
 import Login from './Login/login.js'
 import SignUp from './Login/signup.js'
-import Home from './Components/Home/home.js'
+import Home from './Components/Home/studentTable.js/index.js'
 class Routes extends Component {
     render(){
         return(
