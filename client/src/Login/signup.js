@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faUser, faKey,faAddressBook,faMailBulk,faMobile, faBirthdayCake, faGenderless} from "@fortawesome/free-solid-svg-icons";
 import {Link} from 'react-router-dom'
 import FormField from './Forms/formfields.js'
+import {Redirect} from 'react-router-dom'
+
 class SignUp extends React.Component {
    state = {
        formData: {
@@ -56,7 +58,7 @@ class SignUp extends React.Component {
           },
           mobileNumber: {
             element: "input",
-            value: "",
+            value: 0,
             icon :faMobile,
             config: {
               name: "mobileNumber_input",
@@ -93,8 +95,8 @@ class SignUp extends React.Component {
             config: {
               name: "mobileNumber_input",
               options :[
-                  {val:'M', text:'Male'},
-                  {val:'F', text:'Female'},
+                  {val:'male', text:'Male'},
+                  {val:'female', text:'Female'},
                   {val:'O', text:'Others'}
               ]
 
@@ -106,8 +108,29 @@ class SignUp extends React.Component {
             touched: false,
             validationText: ""
           },
+          password: {
+            element: "input",
+            value: "",
+            icon :faMobile,
+            config: {
+              name: "mobileNumber_input",
+              type: "password",
+              placeholder: "Enter Password"
+            },
+            validation: {
+              required: false
+            },
+            valid: true,
+            touched: false,
+            validationText: ""
+          },
+          
 
        }
+       ,
+       signedIn:false,
+       error:false,
+       errorText:'',
    }
    updateForm = newState => {
     this.setState({
@@ -129,11 +152,73 @@ class SignUp extends React.Component {
     let dataToSubmit = {};
       for (let key in this.state.formData) {
           dataToSubmit[key] = this.state.formData[key].value;
+      
   }
   console.log(dataToSubmit);
-}
+  const requestBody = {
+    query: `
+          query {
+            signup(firstName: "${dataToSubmit.firstName}", 
+            lastName: "${dataToSubmit.lastName}", 
+            mobileNumber: ${dataToSubmit.mobileNumber}, 
+            email: "${dataToSubmit.email}", 
+            birthday: "${dataToSubmit.birthDay}", 
+            gender: "${dataToSubmit.gender}", 
+            password: "${dataToSubmit.password}") {
+              email
+            }
+          }
+        `
+  };
+  console.log(requestBody);
+  fetch("http://localhost:4000/graphql", {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(res => {
+      if (res.status !== 200 && res.status !== 201) {
+        throw new Error(res.statusText);
+      }
+      return res.json();
+    })
+    .then(resData=>{
+      if(resData.errors)
+        {
+          console.log(resData.errors[0])
+          
+          this.setState({
+            error:true,
+            errorText: resData.errors[0].message
+          })
+        }
+        else
+        {
+          this.setState({
+            signedIn:true
+          })
+        }
+    })
+
+  
     
+}
+    errorCheck= () =>{
+      if (this.state.error)
+      {
+        return <p style= {{color:'red'}}>{this.state.errorText}</p>
+      }
+    }
     render(){
+        if(this.state.signedIn)
+        {
+          return (
+            <Redirect to='/login'/>
+          )
+        }
+
         return (
         <div className = "container-fluid">
             <div className = "container">
@@ -142,6 +227,7 @@ class SignUp extends React.Component {
                         <p className = "login-img">
                             <FontAwesomeIcon icon = {faLock}/>
                         </p>
+                        {this.errorCheck()}
                         <FormField
                                 formData={this.state.formData}
                                 change={newState => this.updateForm(newState)}

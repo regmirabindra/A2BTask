@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faUser, faKey, faAd,faAt} from "@fortawesome/free-solid-svg-icons";
 import {Link} from 'react-router-dom'
 import FormField from './Forms/formfields.js'
+import {Redirect} from 'react-router-dom'
+import { renderToStringWithData } from 'react-apollo';
 class Login extends React.Component {
    state = {
        formData: {
@@ -39,7 +41,10 @@ class Login extends React.Component {
             touched: false,
             validationText: ""
           },
-       }
+       },
+       loggedIn:false, 
+       error: false, 
+       errorText: '',
    }
    updateForm = newState => {
     this.setState({
@@ -64,10 +69,70 @@ class Login extends React.Component {
             dataToSubmit[key] = this.state.formData[key].value;
     }
     console.log(dataToSubmit);
+    const requestBody = {
+      query: `
+          query {
+            login(email: "${dataToSubmit.email}", password: "${dataToSubmit.password}") {
+              userId
+              token
+              tokenExpiration
+            }
+          }
+        `
+    };
+
+    fetch("http://localhost:4000/graphql", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error(res.statusText);
+        }
+        
+        return res.json();
+      })
+      .then(resData=>{
+        if(resData.errors)
+        {
+          console.log(resData.errors[0])
+          
+          this.setState({
+            error:true,
+            errorText: resData.errors[0].message
+          })
+        }
+        else
+        {
+          this.setState({
+            loggedIn:true
+          })
+        }
+      })
+  }
+  checkError= ()=>{
+    if (this.state.error)
+    {
+      return <p style= {{color:'red'}}>{this.state.errorText}</p>
+    }
   }
     render(){
+      if(this.state.loggedIn)
+      {
+        return( 
+        <Redirect to= {{
+          pathname:'/',
+          state:{loggedIn:true}
+
+        }}/>
+        )
+      }
         return (
-        <div className = "login-body container-fluid">
+          <div className = "login-body container-fluid">
+  
             <div className = "container">
                 <form className = "login-form" onSubmit={event => {
                         event.preventDefault();
@@ -76,6 +141,7 @@ class Login extends React.Component {
                         <p className = "login-img">
                             <FontAwesomeIcon icon = {faLock}/>
                         </p>
+                        {this.checkError()}
                         <FormField
                                 formData={this.state.formData}
                                 change={newState => this.updateForm(newState)}

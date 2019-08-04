@@ -69,7 +69,7 @@ class AddNewStudent extends Component {
       },
       rollNumber: {
         element: "input",
-        value: "",
+        value: 0,
         label: true,
         labelText: "Roll Number",
         config: {
@@ -88,7 +88,7 @@ class AddNewStudent extends Component {
         element: "input",
         value: "",
         label: true,
-        labelText: "Last Code",
+        labelText: "Email ID",
         config: {
           name: "lastCode_input",
           type: "text",
@@ -166,16 +166,49 @@ class AddNewStudent extends Component {
     });
   };
 
+  componentDidMount = () =>{
+    
+  }
+
+
+
+
+
   submitForm = event => {
     let dataToSubmit = {};
     for (let key in this.state.formData) {
       dataToSubmit[key] = this.state.formData[key].value;
     }
-    this.setState ({
-        posted:true
-    })
     console.log(dataToSubmit);
-
+    const requestBody = {
+      query:`
+    mutation{
+      addStudent(name:"${dataToSubmit.studentName}", email:"${dataToSubmit.emailID}", phoneNumber: ${dataToSubmit.phoneNumber}, address:"${dataToSubmit.address}", 
+        class: "${dataToSubmit.class}", rollNumber: "${dataToSubmit.rollNumber}", age: ${dataToSubmit.age})
+        {
+          id,
+          email,
+          class
+        }
+    }
+    `
+  }
+  console.log(requestBody)
+    const url = "http://localhost:4000/graphql";
+      const opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify( requestBody )
+      }
+      fetch(url, opts)
+    .then(res =>res.json())
+    .then (
+        ({data})=>
+        {
+           console.log(data)
+        }
+    )
+    .catch(console.error);
     
   };
 

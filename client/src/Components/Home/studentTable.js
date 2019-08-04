@@ -1,6 +1,10 @@
 import React from 'react';
 import Table from '../../Templates/tables.js'
 import {faTrash, faEdit} from '@fortawesome/free-solid-svg-icons'
+import gql from 'graphql-tag';
+import {Query} from 'react-apollo'
+
+
 class StudentInfoTable extends React.Component {
     
     headings = [
@@ -25,12 +29,12 @@ class StudentInfoTable extends React.Component {
     actions = [{
       text: 'Edit', 
       icon: faEdit, 
-      link: '/',
+      link: '/editStudent/',
       },
       {
       text: 'Delete', 
       icon: faTrash, 
-      link: '/',
+      link: '/deleteStudent/',
       },
       ]
 
@@ -40,23 +44,57 @@ class StudentInfoTable extends React.Component {
         isLoaded:false,
         filtered:[],
         noResult:false,
-        searchBy:'sn',
+        searchBy:'name',
         selectedTab: 'studentInfo'
     }
     statehandler=(states)=>{
         this.setState(states)
         console.log(this.state)
       }
+      componentDidMount = ()=>
+      {
+        const query = 
+        `
+        query
+        {
+          students{
+            id
+            name
+            class
+            email
+          }
+        }
+        `
+      const url = "http://localhost:4000/graphql";
+      const opts = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      }
+      fetch(url, opts)
+    .then(res => res.json())
+    .then (
+        ({data})=>
+        {
+            this.setState({
+                tableData:data.students
+            })
+        }
+    )
+    .catch(console.error);
+    }
+
+      
     render(){
         return (
             <div>
-              <Table
-            headings = {this.headings}
-            tableData = {this.state.noResult?this.state.filtered:this.state.tableData}
-            state = {this.state}
-            setState = {(states)=>this.statehandler(states)}
-            actions = {this.actions}
-        />
+                <Table
+                    headings = {this.headings}
+                    tableData = {this.state.noResult?this.state.filtered:this.state.tableData}
+                    state = {this.state}
+                    setState = {(states)=>this.statehandler(states)}
+                    actions = {this.actions}
+                    />
         <style jsx>
             {
                 `
